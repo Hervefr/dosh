@@ -1,0 +1,15 @@
+%{
+#include <string.h>
+#include "builtins.h"
+%}
+struct builtin;
+%%
+fg, BUILTIN_FG
+bg, BUILTIN_BG
+jobs, BUILTIN_JOBS
+%%
+struct builtin *
+get_builtin(char *s)
+{
+	return in_word_set(s, strlen(s));
+}
