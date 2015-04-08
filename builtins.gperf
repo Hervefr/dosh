@@ -4,9 +4,11 @@
 %}
 struct builtin;
 %%
+exit, BUILTIN_EXIT
 fg, BUILTIN_FG
 bg, BUILTIN_BG
 jobs, BUILTIN_JOBS
+history, BUILTIN_HISTORY
 %%
 struct builtin *
 get_builtin(char *s)

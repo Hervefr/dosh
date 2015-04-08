@@ -6,9 +6,14 @@
 static size_t
 myinput(char *s, int size)
 {
+	static char *last;
 	prompt();
-	if (fgets(s, size, yyin))
+	if (fgets(s, size, yyin)) {
+		if (last)
+			history_add(last);
+		last = strdup(s);
 		return strlen(s);
+	}
 	return 0;
 }
 #define YY_INPUT(buf, result, maxsize) result = myinput(buf, maxsize)

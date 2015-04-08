@@ -15,7 +15,7 @@ static int interact;
 //struct termios tmodes;
 
 /* list of stopped & background jobs */
-struct job {
+static struct job {
     struct job *next;
     pid_t pgid;
     bool stopped;
@@ -75,6 +75,10 @@ do_builtin(int kind)
         struct job *next;
         int status;
         pid_t pgid;
+    case BUILTIN_EXIT:
+        /* TODO arg */
+        exit(0);
+        break;
     case BUILTIN_FG:
         if (jobs) {
             status = run_fg(pgid = jobs->pgid, jobs->stopped);
@@ -95,6 +99,9 @@ do_builtin(int kind)
         break;
     case BUILTIN_JOBS:
         list_jobs();
+        break;
+    case BUILTIN_HISTORY:
+        show_history();
     }
 }
 
@@ -317,11 +324,32 @@ do_list_cmd(struct list_cmd *cmd, bool fg)
     return status;
 }
 
+static void
+reap(void)
+{
+    int status;
+    pid_t pid;
+    while ((pid = waitpid(-1, 0, WNOHANG)) > 0) {
+        struct job *j, *next, *prev = (struct job *) &jobs;
+        for (j=jobs; j; j=next) {
+            next = j->next;
+            if (j->pgid == pid) {
+                fprintf(stderr, "%d\tDone\n", pid);
+                free(j);
+                prev->next = next;
+            } else {
+                prev = j;
+            }
+        }
+    }
+}
+
 void
 prompt(void)
 {
     static char *text = "% ";
     if (interact) {
+        reap();
         write(0, text, 2);
     }
 }
@@ -331,8 +359,6 @@ run_cmd(struct list_cmd *cmd, bool fg)
 {
     do_list_cmd(cmd, fg);
     free_list_cmd(cmd);
-    /* reap zombies */
-    //while (waitpid(-1, 0, WNOHANG) > 0);
 }
 
 void
