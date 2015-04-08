@@ -69,10 +69,11 @@ check_status(int status, pid_t pgid)
 }
 
 static void
-do_builtin(int kind)
+do_builtin(int kind, unsigned argc, char **argv)
 {
     switch (kind) {
         struct job *next;
+        char *path;
         int status;
         pid_t pgid;
     case BUILTIN_EXIT:
@@ -102,6 +103,14 @@ do_builtin(int kind)
         break;
     case BUILTIN_HISTORY:
         show_history();
+        break;
+    case BUILTIN_CD:
+        if (argc<2)
+            path = getenv("HOME");
+        else
+            path = argv[1];
+        if (chdir(path))
+            perror(path);
     }
 }
 
@@ -203,7 +212,7 @@ do_simple_cmd(struct simple_cmd *cmd, int pgid, int in, int out, bool fg)
 
     struct builtin *bi = get_builtin(cmd->argv[0]);
     if (bi) {
-        do_builtin(bi->kind);
+        do_builtin(bi->kind, cmd->len-1, cmd->argv);
         return 0;
     }
 
