@@ -106,10 +106,17 @@ list_op: AND	{ $$ = LIST_AND; }
        | OR	{ $$ = LIST_OR; }
        | AMP	{ $$ = LIST_AMP; }
 %%
-
+extern FILE *yyin;
+extern bool from_file;
 int
 main(int argc, char **argv)
 {
+	if (argc>1) {
+		yyin = fopen(argv[1], "r");
+		if (!yyin)
+			err(1, "%s", argv[1]);
+		from_file = 1;
+	}
 	init();
 	yyparse();
 	return 0;

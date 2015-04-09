@@ -12,6 +12,7 @@
 static pid_t shell_pgid;
 /* reading input from tty? */
 static int interact;
+bool from_file;
 //struct termios tmodes;
 
 /* list of stopped & background jobs */
@@ -374,7 +375,7 @@ void
 init(void)
 {
     //printf("%d\n", getpid());
-    if (interact = isatty(0)) {
+    if (interact = !from_file && isatty(0)) {
         while (tcgetpgrp(0) != (shell_pgid = getpgrp()))
             kill(-shell_pgid, SIGTTIN);
 
