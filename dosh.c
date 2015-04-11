@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -70,6 +71,23 @@ check_status(int status, pid_t pgid)
 }
 
 static void
+do_pwd(void)
+{
+    /* glibc-specific */
+    char *wd = get_current_dir_name();
+    puts(wd);
+    free(wd);
+}
+
+static void
+do_puts(unsigned argc, char **argv)
+{
+    unsigned i;
+    for (i=1; i<argc; i++)
+        puts(argv[i]);
+}
+
+static void
 do_builtin(int kind, unsigned argc, char **argv)
 {
     switch (kind) {
@@ -112,6 +130,12 @@ do_builtin(int kind, unsigned argc, char **argv)
             path = argv[1];
         if (chdir(path))
             perror(path);
+        break;
+    case BUILTIN_PWD:
+        do_pwd();
+        break;
+    case BUILTIN_PUTS:
+        do_puts(argc, argv);
     }
 }
 
@@ -123,12 +147,19 @@ add_arg(struct simple_cmd *cmd, char *arg)
     cmd->argv[cmd->len++] = arg;
 }
 
+/* if u is a list, the list will be freed */
 void
 add_unit(struct simple_cmd *cmd, struct unit *u)
 {
     switch (u->kind) {
+        unsigned i;
     case U_WORD:
         add_arg(cmd, u->word);
+        break;
+    case U_LIST:
+        for (i=0; i<u->len; i++)
+            add_arg(cmd, u->list[i]);
+        free(u->list);
         break;
     case U_FROM:
         free(cmd->from);

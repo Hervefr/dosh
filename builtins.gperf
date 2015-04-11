@@ -10,6 +10,8 @@ bg, BUILTIN_BG
 jobs, BUILTIN_JOBS
 history, BUILTIN_HISTORY
 cd, BUILTIN_CD
+pwd, BUILTIN_PWD
+puts, BUILTIN_PUTS
 %%
 struct builtin *
 get_builtin(char *s)

@@ -59,7 +59,7 @@ redir_indicator: FROM	{ $$ = REDIR_FROM; }
 
 redir: redir_indicator WORD	{ $$.kind = $1; $$.word = $2; }
 
-unit: WORD	{ $$.kind = U_WORD; $$.word = $1; }
+unit: WORD	{ try_expand($1, &$$); }
     | redir
 	{
 		switch ($1.kind) {
@@ -71,7 +71,6 @@ unit: WORD	{ $$.kind = U_WORD; $$.word = $1; }
 			break;
 		case REDIR_APPEND:
 			$$.kind = U_APPEND;
-			break;
 		}
 		$$.word = $1.word;
 	}

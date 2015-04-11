@@ -7,5 +7,7 @@ struct builtin {
         BUILTIN_JOBS,
         BUILTIN_HISTORY,
         BUILTIN_CD,
+        BUILTIN_PWD,
+        BUILTIN_PUTS,
     } kind;
 } *get_builtin(char *);

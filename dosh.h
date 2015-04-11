@@ -28,11 +28,21 @@ struct list_cmd {
 struct unit {
     enum {
         U_WORD,
+        U_LIST,
         U_FROM,
         U_INTO,
         U_APPEND,
     } kind;
-    char *word;
+    union {
+        /* weak ref */
+        char *word;
+        struct {
+            /* element weak ref */
+            char **list;
+            unsigned len;
+            unsigned cap;
+        };
+    };
 };
 
 struct redir {

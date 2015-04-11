@@ -29,6 +29,6 @@ myinput(char *s, int size)
 \n	{ return NEWLINE; }
 ";"	{ return SEMI; }
 [ \t]	{}
-[*-:A-Z_a-z]+	{ yylval.word = strdup(yytext); return WORD; }
+[*-:?-Z_a-z]+	{ yylval.word = strdup(yytext); return WORD; }
 .	{ fprintf(stderr, "unrecognized character %s\n", yytext); }
 %%
