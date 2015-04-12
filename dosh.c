@@ -1,7 +1,6 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -13,18 +12,18 @@
 static pid_t shell_pgid;
 /* reading input from tty? */
 static int interact;
-bool from_file;
+int from_file;
 //struct termios tmodes;
 
 /* list of stopped & background jobs */
 static struct job {
     struct job *next;
     pid_t pgid;
-    bool stopped;
+    char stopped;
 } *jobs;
 
 static void
-job_add(pid_t pgid, bool stopped)
+job_add(pid_t pgid, int stopped)
 {
     struct job *new = malloc(sizeof *new);
     new->next = jobs;
@@ -47,7 +46,7 @@ list_jobs(void)
 }
 
 static int
-run_fg(pid_t pgid, bool cont)
+run_fg(pid_t pgid, int cont)
 {
     int status = 0;
     tcsetpgrp(0, pgid);
@@ -233,7 +232,7 @@ open_dup2(char *file, int mode, int newfd)
 
 /* 0 indicates failure */
 static pid_t
-do_simple_cmd(struct simple_cmd *cmd, int pgid, int in, int out, bool fg)
+do_simple_cmd(struct simple_cmd *cmd, int pgid, int in, int out, int fg)
 {
     pid_t pid;
 
@@ -331,7 +330,7 @@ do_pipe_cmd(struct pipe_cmd *cmd, int pgid, int in, int out, int fg)
 }
 
 static int
-do_list_cmd(struct list_cmd *cmd, bool fg)
+do_list_cmd(struct list_cmd *cmd, int fg)
 {
     switch (cmd->kind) {
         int status;
@@ -396,7 +395,7 @@ prompt(void)
 }
 
 void
-run_cmd(struct list_cmd *cmd, bool fg)
+run_cmd(struct list_cmd *cmd, int fg)
 {
     do_list_cmd(cmd, fg);
     free_list_cmd(cmd);

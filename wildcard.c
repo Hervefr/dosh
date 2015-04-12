@@ -1,7 +1,6 @@
 #define _GNU_SOURCE /* for strchrnul() */
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <dirent.h>
 #include "dosh.h"
 

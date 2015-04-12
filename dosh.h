@@ -4,8 +4,8 @@ struct simple_cmd {
     char *into;
     unsigned len;
     unsigned cap;
-    bool append;
-    bool bg;
+    char append;
+    char bg;
 };
 
 /* a job */
@@ -53,4 +53,4 @@ struct redir {
     char *word;
 };
 
-void run_cmd(struct list_cmd *, bool);
+void run_cmd(struct list_cmd *, int fg);
