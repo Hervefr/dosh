@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -9,11 +8,15 @@
 #include "dosh.h"
 #include "builtins.h"
 
+#define MY_PATH_MAX 128
+
 static pid_t shell_pgid;
 /* reading input from tty? */
 static int interact;
 int from_file;
 //struct termios tmodes;
+/* working directory */
+char wd[MY_PATH_MAX];
 
 /* list of stopped & background jobs */
 static struct job {
@@ -70,15 +73,6 @@ check_status(int status, pid_t pgid)
 }
 
 static void
-do_pwd(void)
-{
-    /* glibc-specific */
-    char *wd = get_current_dir_name();
-    puts(wd);
-    free(wd);
-}
-
-static void
 do_puts(unsigned argc, char **argv)
 {
     unsigned i;
@@ -127,11 +121,16 @@ do_builtin(int kind, unsigned argc, char **argv)
             path = getenv("HOME");
         else
             path = argv[1];
-        if (chdir(path))
+        if (chdir(path)) {
+            /* error */
             perror(path);
+        } else {
+            /* success */
+            getcwd(wd, MY_PATH_MAX);
+        }
         break;
     case BUILTIN_PWD:
-        do_pwd();
+        puts(wd);
         break;
     case BUILTIN_PUTS:
         do_puts(argc, argv);
@@ -387,10 +386,11 @@ reap(void)
 void
 prompt(void)
 {
-    static char *text = "% ";
+    char buf[MY_PATH_MAX+3];
+    sprintf(buf, "%s %% ", wd);
     if (interact) {
         reap();
-        write(0, text, 2);
+        write(0, buf, strlen(buf));
     }
 }
 
@@ -405,6 +405,7 @@ void
 init(void)
 {
     //printf("%d\n", getpid());
+    getcwd(wd, MY_PATH_MAX);
     if (interact = !from_file && isatty(0)) {
         while (tcgetpgrp(0) != (shell_pgid = getpgrp()))
             kill(-shell_pgid, SIGTTIN);
