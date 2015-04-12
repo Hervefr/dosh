@@ -40,7 +40,6 @@ struct unit {
             /* element weak ref */
             char **list;
             unsigned len;
-            unsigned cap;
         };
     };
 };

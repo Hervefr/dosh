@@ -59,7 +59,7 @@ redir_indicator: FROM	{ $$ = REDIR_FROM; }
 
 redir: redir_indicator WORD	{ $$.kind = $1; $$.word = $2; }
 
-unit: WORD	{ try_expand($1, &$$); }
+unit: WORD	{ try_expand_user($1, &$$); /* transfer ownership of $1 */ }
     | redir
 	{
 		switch ($1.kind) {
