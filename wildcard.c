@@ -62,20 +62,6 @@ wildcard_ptr(char *s)
     }
 }
 
-static int
-wildcard_index(char *s)
-{
-    int i=0;
-    for (;;) {
-        switch (s[i++]) {
-        case 0:
-            return -1;
-        case '*': case '?':
-            return i;
-        }
-    }
-}
-
 static char *
 substr(char *from, char *to)
 {
